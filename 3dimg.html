@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>3D Slider</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <style>
+@import url("https://fonts.googleapis.com/css?family=Lora:700");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans");
+:root {
+  --z-distance: 8.519vw;
+  --from-left: 1;
+  --mobile-bkp: 650px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Lora, serif;
+  font-size: calc(14px + .3vw);
+}
+
+.slider {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  -webkit-perspective: 1000px;
+          perspective: 1000px;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+}
+.slider::before, .slider::after {
+  content: '';
+  left: -1vw;
+  top: -1vh;
+  display: block;
+  position: absolute;
+  width: 102vw;
+  height: 102vh;
+  background-position: center;
+  background-size: cover;
+  will-change: opacity;
+  z-index: -1;
+  box-shadow: 0 0 0 50vmax rgba(0, 0, 0, 0.7) inset;
+}
+.slider::before {
+  background-image: var(--img-prev);
+}
+.slider::after {
+  transition: opacity 0.7s;
+  opacity: 0;
+  background-image: var(--img-next);
+}
+.slider--bg-next::after {
+  opacity: 1;
+}
+.contents {
+  margin: auto;
+  width: 65vw;
+  height: 32.5vw;
+  max-height: 60vh;
+  will-change: transform;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+  pointer-events: none;
+  -webkit-transform: translateZ(var(--z-distance));
+          transform: translateZ(var(--z-distance));
+}
+.imageLIST {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  box-shadow: 0 0 5em #000;
+}
+.imageITEM {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  will-change: transform;
+  transition-timing-function: ease-in;
+  visibility: hidden;
+}
+.imageITEM img {
+  display: block;
+  position: relative;
+  left: -1em;
+  top: -1em;
+  width: calc(100% + 1em * 2);
+  height: calc(100% + 1em * 2);
+  -o-object-fit: cover;
+     object-fit: cover;
+  will-change: transform;
+}
+.imageITEM--active {
+  z-index: 20;
+  visibility: visible;
+}
+.imageITEM--subactive {
+  z-index: 15;
+  visibility: visible;
+}
+.imageITEM--next {
+  -webkit-transform: translateX(100%);
+          transform: translateX(100%);
+}
+.imageITEM--prev {
+  -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+.imageITEM--transit {
+  transition: opacity 0.7s, -webkit-transform 0.7s;
+  transition: transform 0.7s, opacity 0.7s;
+  transition: transform 0.7s, opacity 0.7s, -webkit-transform 0.7s;
+}
+.slider__text {
+  position: relative;
+  height: 100%;
+}
+.textITEMS {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0.5em;
+  -webkit-perspective: 1000px;
+          perspective: 1000px;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+}
+.textITEMS > * {
+  overflow: hidden;
+  position: absolute;
+}
+.textITEMS h3, .textITEMS p {
+  transition: -webkit-transform 0.35s ease-out;
+  transition: transform 0.35s ease-out;
+  transition: transform 0.35s ease-out, -webkit-transform 0.35s ease-out;
+  line-height: 1.5;
+  overflow: hidden;
+}
+.textITEMS h3 {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.textITEMS p {
+  font-family: 'Open Sans', sans-serif;
+  padding: 1em;
+  color: white;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.textITEMS h3::before, .textITEMS p::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 105%;
+  height: 100%;
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
+  transition: -webkit-transform 0.35s ease-out 0.28s;
+  transition: transform 0.35s ease-out 0.28s;
+  transition: transform 0.35s ease-out 0.28s, -webkit-transform 0.35s ease-out 0.28s;
+}
+.textITEMS h3::before {
+  background-color: #000;
+}
+.textITEMS p::before {
+  background-color: #fff;
+}
+.textITEMS h3 {
+  margin: 0;
+  font-size: 3.5em;
+  padding: 0 .3em;
+  position: relative;
+  font-weight: 700;
+  -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+.textITEMS p {
+  margin: 0;
+  -webkit-transform: translateX(100%);
+          transform: translateX(100%);
+}
+.headings {
+  top: -0.5em;
+  -webkit-transform: translateZ(3em);
+          transform: translateZ(3em);
+}
+.txtINFO {
+  bottom: 0;
+  right: 0;
+  max-width: 75%;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+  -webkit-transform: translateZ(2em);
+          transform: translateZ(2em);
+}
+.textITEMS--active h3, .textITEMS--active p {
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
+}
+.textITEMS--active h3::before {
+  -webkit-transform: translateX(102%);
+          transform: translateX(102%);
+}
+.textITEMS--active p::before {
+  -webkit-transform: translateX(-102%);
+          transform: translateX(-102%);
+}
+.textITEMS--backwards h3::before, .textITEMS--backwards p::before {
+  transition: -webkit-transform 0.35s ease-in;
+  transition: transform 0.35s ease-in;
+  transition: transform 0.35s ease-in, -webkit-transform 0.35s ease-in;
+}
+.textITEMS--backwards h3, .textITEMS--backwards p {
+  transition: -webkit-transform 0.35s ease-in 0.35s;
+  transition: transform 0.35s ease-in 0.35s;
+  transition: transform 0.35s ease-in 0.35s, -webkit-transform 0.35s ease-in 0.35s;
+}
+.navigations {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+.navARROWS {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.navARROW {
+  height: 100vh;
+  width: 50vw;
+  text-indent: -9999px;
+  white-space: nowrap;
+}
+.navARROW--left {
+  --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 4 4'%3E %3Cpolyline points='3 1 1 2 3 3' stroke='white' stroke-width='.3' stroke-opacity='.5' fill='none'%3E%3C/polyline%3E %3C/svg%3E");
+  cursor: var(--arrow) 40 40, auto;
+}
+.navARROW--right {
+  --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 4 4'%3E %3Cpolyline points='1 1 3 2 1 3' stroke='white' stroke-width='.3' stroke-opacity='.5' fill='none'%3E%3C/polyline%3E %3C/svg%3E");
+  cursor: var(--arrow) 40 40, auto;
+}
+.bottomDOTS {
+  margin-top: 88vh;
+  display: inline-flex;
+  position: relative;
+  padding: 1em;
+  pointer-events: none;
+}
+.bottomDOTS::before {
+  content: '';
+  position: absolute;
+  left: calc(1em + 1em + 2px);
+  top: calc(1em + 2px);
+  width: calc(1em - 2px * 2);
+  height: calc(1em / 2 - 2px * 2);
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: -webkit-transform 0.7s ease-out;
+  transition: transform 0.7s ease-out;
+  transition: transform 0.7s ease-out, -webkit-transform 0.7s ease-out;
+  -webkit-transform: translateX(calc((1em + 1em * 2) * (var(--from-left) - 1)));
+          transform: translateX(calc((1em + 1em * 2) * (var(--from-left) - 1)));
+}
+.bottomDOT {
+  margin: 0 1em;
+  width: 1em;
+  height: 0.5em;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  cursor: crosshair;
+  pointer-events: all;
+  display: inline-block;
+}
+.bottomDOT:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+.bottomDOT:active {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+@media only screen and (max-width: 650px) {
+  .slider::before,
+  .slider::after {
+    display: none;
+  }
+
+  .contents {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+  }
+
+  .txtINFO {
+    bottom: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, 50%);
+            transform: translate(-50%, 50%);
+  }
+  .txtINFO p {
+    padding: 1em .8em;
+  }
+
+  .headings {
+    top: 5vh;
+    left: 10vw;
+    -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+  }
+  .headings h3 {
+    font-size: 2.5em;
+  }
+
+  .bottomDOTS {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .navARROW {
+    width: 10vw;
+    position: relative;
+    cursor: auto;
+  }
+  .navARROW:active {
+    -webkit-filter: brightness(0.5);
+            filter: brightness(0.5);
+  }
+  .navARROW::before {
+    content: '';
+    background-image: var(--arrow);
+    background-size: cover;
+    width: 8vw;
+    height: 8vw;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+  }
+  .navARROW--left {
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.7) 0, transparent 100%);
+  }
+  .navARROW--left:active {
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.9) 0, transparent 100%);
+  }
+  .navARROW--right {
+    background-image: linear-gradient(to left, rgba(0, 0, 0, 0.7) 0, transparent 100%);
+  }
+  .navARROW--right:active {
+    background-image: linear-gradient(to left, rgba(0, 0, 0, 0.9) 0, transparent 100%);
+  }
+}
+  </style>
+
+</head>
+<body>
+
+  <div class="slider" id="slider" style="--img-prev:url(https://webdevtrick.com/wp-content/uploads/programming.jpg);"> 
+  <div class="contents" id="slider-content">
+    <div class="imageLIST">
+      <div class="imageITEM imageITEM--active" data-id="1"><img src="external-content.duckduckgo.com1.jpeg"/></div>
+      <div class="imageITEM" data-id="2"><img src="burger_0.gif"/></div>
+      <div class="imageITEM" data-id="3"><img src="sourdough-garlic-bread.png"/></div>
+      <div class="imageITEM" data-id="4"><img src="index1.jpeg"/></div>
+      <div class="imageITEM" data-id="5"><img src="pani_puri_-_perfect_street_food.jpg"/></div>
+    </div>
+    <div class="slider__text">
+      <div class="textITEMS textITEMS--active" data-id="1">
+        <div class="headings">
+          <h3>Chocolates</h3>
+        </div>
+        <div class="txtINFO">
+          <p>“Lorem ipsum dolor sit amet, consectetur adipiscing elit.”</p>
+        </div>
+      </div>
+      <div class="textITEMS" data-id="2">
+        <div class="headings">
+          <h3>Burger</h3>
+        </div>
+        <div class="txtINFO">
+          <p>“Lorem ipsum dolor sit amet, consectetur adipiscing elit.”</p>
+        </div>
+      </div>
+      <div class="textITEMS" data-id="3">
+        <div class="headings">
+          <h3>Garlic Bread</h3>
+        </div>
+        <div class="txtINFO">
+          <p>“Lorem ipsum dolor sit amet, consectetur adipiscing elit.”</p>
+        </div>
+      </div>
+      <div class="textITEMS" data-id="4">
+        <div class="headings">
+          <h3>Pizza</h3>
+        </div>
+        <div class="txtINFO">
+          <p>“Lorem ipsum dolor sit amet, consectetur adipiscing elit.”</p>
+        </div>
+      </div>
+      <div class="textITEMS" data-id="5">
+        <div class="headings">
+          <h3>Pani Puri</h3>
+        </div>
+        <div class="txtINFO">
+          <p>“Lorem ipsum dolor sit amet, consectetur adipiscing elit.”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="navigations">
+    <div class="navARROWS">
+      <div class="navARROW navARROW--left" id="left">to left</div>
+      <div class="navARROW navARROW--right" id="right">to right</div>
+    </div>
+    <div class="bottomDOTS" id="slider-dots">
+      <div class="bottomDOT bottomDOT--active" data-id="1"></div>
+      <div class="bottomDOT" data-id="2"></div>
+      <div class="bottomDOT" data-id="3"></div>
+      <div class="bottomDOT" data-id="4"></div>
+      <div class="bottomDOT" data-id="5"></div>
+    </div>
+  </div>
+</div>
+
+<script  src="function.js"></script>
+<script>
+function lerp({ x, y }, { x: targetX, y: targetY }) {
+  const fraction = 0.1;
+
+  x += (targetX - x) * fraction;
+  y += (targetY - y) * fraction;
+
+  return { x, y };
+}
+
+class Slider {
+  constructor(el) {
+    const imgClass = this.IMG_CLASS = 'imageITEM';
+    const textClass = this.TEXT_CLASS = 'textITEMS';
+    const activeImgClass = this.ACTIVE_IMG_CLASS = `${imgClass}--active`;
+    const activeTextClass = this.ACTIVE_TEXT_CLASS = `${textClass}--active`;
+
+    this.el = el;
+    this.contentEl = document.getElementById('slider-content');
+    this.onMouseMove = this.onMouseMove.bind(this);
+
+    // taking advantage of the live nature of 'getElement...' methods
+    this.activeImg = el.getElementsByClassName(activeImgClass);
+    this.activeText = el.getElementsByClassName(activeTextClass);
+    this.images = el.getElementsByTagName('img');
+
+    document.getElementById('slider-dots').
+    addEventListener('click', this.onDotClick.bind(this));
+
+    document.getElementById('left').
+    addEventListener('click', this.prev.bind(this));
+
+    document.getElementById('right').
+    addEventListener('click', this.next.bind(this));
+
+    window.addEventListener('resize', this.onResize.bind(this));
+
+    this.onResize();
+
+    this.length = this.images.length;
+    this.lastX = this.lastY = this.targetX = this.targetY = 0;
+  }
+  onResize() {
+    const htmlStyles = getComputedStyle(document.documentElement);
+    const mobileBreakpoint = htmlStyles.getPropertyValue('--mobile-bkp');
+
+    const isMobile = this.isMobile = matchMedia(
+    `only screen and (max-width: ${mobileBreakpoint})`).
+    matches;
+
+    this.halfWidth = innerWidth / 2;
+    this.halfHeight = innerHeight / 2;
+    this.zDistance = htmlStyles.getPropertyValue('--z-distance');
+
+    if (!isMobile && !this.mouseWatched) {
+      this.mouseWatched = true;
+      this.el.addEventListener('mousemove', this.onMouseMove);
+      this.el.style.setProperty(
+      '--img-prev',
+      `url(${this.images[+this.activeImg[0].dataset.id - 1].src})`);
+
+      this.contentEl.style.setProperty('transform', `translateZ(${this.zDistance})`);
+    } else if (isMobile && this.mouseWatched) {
+      this.mouseWatched = false;
+      this.el.removeEventListener('mousemove', this.onMouseMove);
+      this.contentEl.style.setProperty('transform', 'none');
+    }
+  }
+  getMouseCoefficients({ pageX, pageY } = {}) {
+    const halfWidth = this.halfWidth;
+    const halfHeight = this.halfHeight;
+    const xCoeff = ((pageX || this.targetX) - halfWidth) / halfWidth;
+    const yCoeff = (halfHeight - (pageY || this.targetY)) / halfHeight;
+
+    return { xCoeff, yCoeff };
+  }
+  onMouseMove({ pageX, pageY }) {
+    this.targetX = pageX;
+    this.targetY = pageY;
+
+    if (!this.animationRunning) {
+      this.animationRunning = true;
+      this.runAnimation();
+    }
+  }
+  runAnimation() {
+    if (this.animationStopped) {
+      this.animationRunning = false;
+      return;
+    }
+
+    const maxX = 10;
+    const maxY = 10;
+
+    const newPos = lerp({
+      x: this.lastX,
+      y: this.lastY },
+    {
+      x: this.targetX,
+      y: this.targetY });
+
+
+    const { xCoeff, yCoeff } = this.getMouseCoefficients({
+      pageX: newPos.x,
+      pageY: newPos.y });
+
+
+    this.lastX = newPos.x;
+    this.lastY = newPos.y;
+
+    this.positionImage({ xCoeff, yCoeff });
+
+    this.contentEl.style.setProperty('transform', `
+      translateZ(${this.zDistance})
+      rotateX(${maxY * yCoeff}deg)
+      rotateY(${maxX * xCoeff}deg)
+    `);
+
+    if (this.reachedFinalPoint) {
+      this.animationRunning = false;
+    } else {
+      requestAnimationFrame(this.runAnimation.bind(this));
+    }
+  }
+  get reachedFinalPoint() {
+    const lastX = ~~this.lastX;
+    const lastY = ~~this.lastY;
+    const targetX = this.targetX;
+    const targetY = this.targetY;
+
+    return (lastX == targetX || lastX - 1 == targetX || lastX + 1 == targetX) && (
+    lastY == targetY || lastY - 1 == targetY || lastY + 1 == targetY);
+  }
+  positionImage({ xCoeff, yCoeff }) {
+    const maxImgOffset = 1;
+    const currentImage = this.activeImg[0].children[0];
+
+    currentImage.style.setProperty('transform', `
+      translateX(${maxImgOffset * -xCoeff}em)
+      translateY(${maxImgOffset * yCoeff}em)
+    `);
+  }
+  onDotClick({ target }) {
+    if (this.inTransit) return;
+
+    const dot = target.closest('.bottomDOT');
+
+    if (!dot) return;
+
+    const nextId = dot.dataset.id;
+    const currentId = this.activeImg[0].dataset.id;
+
+    if (currentId == nextId) return;
+
+    this.startTransition(nextId);
+  }
+  transitionItem(nextId) {
+    function onImageTransitionEnd(e) {
+      e.stopPropagation();
+
+      nextImg.classList.remove(transitClass);
+
+      self.inTransit = false;
+
+      this.className = imgClass;
+      this.removeEventListener('transitionend', onImageTransitionEnd);
+    }
+
+    const self = this;
+    const el = this.el;
+    const currentImg = this.activeImg[0];
+    const currentId = currentImg.dataset.id;
+    const imgClass = this.IMG_CLASS;
+    const textClass = this.TEXT_CLASS;
+    const activeImgClass = this.ACTIVE_IMG_CLASS;
+    const activeTextClass = this.ACTIVE_TEXT_CLASS;
+    const subActiveClass = `${imgClass}--subactive`;
+    const transitClass = `${imgClass}--transit`;
+    const nextImg = el.querySelector(`.${imgClass}[data-id='${nextId}']`);
+    const nextText = el.querySelector(`.${textClass}[data-id='${nextId}']`);
+
+    let outClass = '';
+    let inClass = '';
+
+    this.animationStopped = true;
+
+    nextText.classList.add(activeTextClass);
+
+    el.style.setProperty('--from-left', nextId);
+
+    currentImg.classList.remove(activeImgClass);
+    currentImg.classList.add(subActiveClass);
+
+    if (currentId < nextId) {
+      outClass = `${imgClass}--next`;
+      inClass = `${imgClass}--prev`;
+    } else {
+      outClass = `${imgClass}--prev`;
+      inClass = `${imgClass}--next`;
+    }
+
+    nextImg.classList.add(outClass);
+
+    requestAnimationFrame(() => {
+      nextImg.classList.add(transitClass, activeImgClass);
+      nextImg.classList.remove(outClass);
+
+      this.animationStopped = false;
+      this.positionImage(this.getMouseCoefficients());
+
+      currentImg.classList.add(transitClass, inClass);
+      currentImg.addEventListener('transitionend', onImageTransitionEnd);
+    });
+
+    if (!this.isMobile)
+    this.switchBackgroundImage(nextId);
+  }
+  startTransition(nextId) {
+    function onTextTransitionEnd(e) {
+      if (!e.pseudoElement) {
+        e.stopPropagation();
+
+        requestAnimationFrame(() => {
+          self.transitionItem(nextId);
+        });
+
+        this.removeEventListener('transitionend', onTextTransitionEnd);
+      }
+    }
+
+    if (this.inTransit) return;
+
+    const activeText = this.activeText[0];
+    const backwardsClass = `${this.TEXT_CLASS}--backwards`;
+    const self = this;
+
+    this.inTransit = true;
+
+    activeText.classList.add(backwardsClass);
+    activeText.classList.remove(this.ACTIVE_TEXT_CLASS);
+    activeText.addEventListener('transitionend', onTextTransitionEnd);
+
+    requestAnimationFrame(() => {
+      activeText.classList.remove(backwardsClass);
+    });
+  }
+  next() {
+    if (this.inTransit) return;
+
+    let nextId = +this.activeImg[0].dataset.id + 1;
+
+    if (nextId > this.length)
+    nextId = 1;
+
+    this.startTransition(nextId);
+  }
+  prev() {
+    if (this.inTransit) return;
+
+    let nextId = +this.activeImg[0].dataset.id - 1;
+
+    if (nextId < 1)
+    nextId = this.length;
+
+    this.startTransition(nextId);
+  }
+  switchBackgroundImage(nextId) {
+    function onBackgroundTransitionEnd(e) {
+      if (e.target === this) {
+        this.style.setProperty('--img-prev', imageUrl);
+        this.classList.remove(bgClass);
+        this.removeEventListener('transitionend', onBackgroundTransitionEnd);
+      }
+    }
+
+    const bgClass = 'slider--bg-next';
+    const el = this.el;
+    const imageUrl = `url(${this.images[+nextId - 1].src})`;
+
+    el.style.setProperty('--img-next', imageUrl);
+    el.addEventListener('transitionend', onBackgroundTransitionEnd);
+    el.classList.add(bgClass);
+  }}
+
+
+const sliderEl = document.getElementById('slider');
+const slider = new Slider(sliderEl);
+
+// ------------------ Demo stuff ------------------------ //
+
+let timer = 0;
+
+function autoSlide() {
+  requestAnimationFrame(() => {
+    slider.next();
+  });
+
+  timer = setTimeout(autoSlide, 5000);
+}
+
+function stopAutoSlide() {
+  clearTimeout(timer);
+
+  this.removeEventListener('touchstart', stopAutoSlide);
+  this.removeEventListener('mousemove', stopAutoSlide);
+}
+
+sliderEl.addEventListener('mousemove', stopAutoSlide);
+sliderEl.addEventListener('touchstart', stopAutoSlide);
+
+timer = setTimeout(autoSlide, 2000);
+</script>
+
+</body>
+</html>
